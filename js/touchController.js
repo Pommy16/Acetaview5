@@ -7,14 +7,18 @@ window.TouchController = class TouchController {
    * Bind Touch Scrubbing to a 2D Viewport Canvas
    */
   static bind2DScrub(canvas, onSliceChange) {
-    let startY = 0;
+    if (!canvas) return () => {};
+    let lastX = 0;
+    let lastY = 0;
     let isDragging = false;
-    const pxPerSlice = 6;
+    let accum = 0;
 
     const onStart = (e) => {
       isDragging = true;
+      accum = 0;
       const touch = e.touches ? e.touches[0] : e;
-      startY = touch.clientY;
+      lastX = touch.clientX;
+      lastY = touch.clientY;
       canvas.classList.add('active-dragging');
     };
 
@@ -23,26 +27,37 @@ window.TouchController = class TouchController {
       if (e.cancelable) e.preventDefault();
 
       const touch = e.touches ? e.touches[0] : e;
-      const dy = startY - touch.clientY;
+      const curX = touch.clientX;
+      const curY = touch.clientY;
 
-      if (Math.abs(dy) >= pxPerSlice) {
-        const sliceSteps = Math.trunc(dy / pxPerSlice);
+      const dx = lastX - curX;
+      const dy = lastY - curY;
+      lastX = curX;
+      lastY = curY;
+
+      const pxPerSlice = 6;
+      const dominant = Math.abs(dx) >= Math.abs(dy) ? dx : dy;
+      accum += dominant;
+
+      if (Math.abs(accum) >= pxPerSlice) {
+        const sliceSteps = Math.trunc(accum / pxPerSlice);
         if (sliceSteps !== 0) {
           onSliceChange(sliceSteps);
-          startY = touch.clientY;
+          accum -= sliceSteps * pxPerSlice;
         }
       }
     };
 
     const onEnd = () => {
       isDragging = false;
+      accum = 0;
       canvas.classList.remove('active-dragging');
     };
 
-    canvas.addEventListener('touchstart', onStart, { passive: false });
+    canvas.addEventListener('touchstart', onStart, { passive: true });
     canvas.addEventListener('touchmove', onMove, { passive: false });
-    canvas.addEventListener('touchend', onEnd);
-    canvas.addEventListener('touchcancel', onEnd);
+    canvas.addEventListener('touchend', onEnd, { passive: true });
+    canvas.addEventListener('touchcancel', onEnd, { passive: true });
 
     canvas.addEventListener('mousedown', onStart);
     window.addEventListener('mousemove', onMove);

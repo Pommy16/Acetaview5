@@ -241,99 +241,88 @@ window.imageSequenceManager = new ImageSequenceManager();
 class TouchController {
   static bindScrub(canvas, onStepChange) {
     if (!canvas) return () => {};
-    let startX = 0;
-    let startY = 0;
     let lastX = 0;
     let lastY = 0;
     let isDragging = false;
-    let isHorizontalGesture = null;
+    let accum = 0;
 
     const onStart = (e) => {
       isDragging = true;
-      isHorizontalGesture = null;
+      accum = 0;
       const touch = e.touches ? e.touches[0] : e;
-      startX = touch.clientX;
-      startY = touch.clientY;
       lastX = touch.clientX;
       lastY = touch.clientY;
+
+      const container = canvas.closest('.viewport-canvas-container');
+      if (container) container.classList.add('active-dragging');
     };
 
     const onMove = (e) => {
       if (!isDragging) return;
+      if (e.cancelable) e.preventDefault();
 
       const touch = e.touches ? e.touches[0] : e;
       const curX = touch.clientX;
       const curY = touch.clientY;
-      const diffX = curX - startX;
-      const diffY = curY - startY;
 
-      const isMobile = window.innerWidth <= 600;
+      const dx = lastX - curX;
+      const dy = lastY - curY;
+      lastX = curX;
+      lastY = curY;
 
-      if (isMobile) {
-        // MOBILE VERSION (<= 600px): Horizontal Scrubbing (Left/Right)
-        if (isHorizontalGesture === null) {
-          const absX = Math.abs(diffX);
-          const absY = Math.abs(diffY);
-          if (absX < 5 && absY < 5) return;
+      // Dynamic sensitivity: 12px/step in Fullscreen mode for fine precision, 6px/step in normal mode
+      const box = canvas.closest('.viewport-box');
+      const isFullscreen = box ? box.classList.contains('fullscreen') : false;
+      const pxPerStep = isFullscreen ? 12 : 6;
 
-          if (absY > absX) {
-            isHorizontalGesture = false; // Vertical swipe -> allow native page scrolling
-            return;
-          } else {
-            isHorizontalGesture = true;  // Horizontal swipe -> lock gesture to CT slice scrubbing
-          }
-        }
+      // Allow scrubbing both horizontally (left/right) and vertically (up/down):
+      // Dragging RIGHT or DOWN advances slice/frame forward (dx < 0 or dy < 0)
+      // Dragging LEFT or UP moves slice/frame backward (dx > 0 or dy > 0)
+      // Use dominant movement per delta to ensure natural diagonal & curved dragging without cancellation
+      const dominant = Math.abs(dx) >= Math.abs(dy) ? dx : dy;
+      accum += dominant;
 
-        // If user is scrolling the page vertically on mobile, do not interfere
-        if (isHorizontalGesture === false) return;
-
-        if (e.cancelable) e.preventDefault();
-
-        const box = canvas.closest('.viewport-box');
-        const isFullscreen = box ? box.classList.contains('fullscreen') : false;
-        const pxPerStep = isFullscreen ? 12 : 6;
-
-        const d = lastX - curX;
-        if (Math.abs(d) >= pxPerStep) {
-          const steps = Math.trunc(d / pxPerStep);
-          if (steps !== 0) {
-            onStepChange(steps);
-            lastX = curX;
-          }
-        }
-      } else {
-        // DESKTOP & TABLET VERSION (> 600px): Vertical Scrubbing (Up/Down PACS standard)
-        if (e.cancelable) e.preventDefault();
-
-        const box = canvas.closest('.viewport-box');
-        const isFullscreen = box ? box.classList.contains('fullscreen') : false;
-        const pxPerStep = isFullscreen ? 12 : 6;
-
-        // Dragging DOWN advances slice forward, dragging UP moves backward
-        const d = lastY - curY;
-        if (Math.abs(d) >= pxPerStep) {
-          const steps = Math.trunc(d / pxPerStep);
-          if (steps !== 0) {
-            onStepChange(steps);
-            lastY = curY;
-          }
+      if (Math.abs(accum) >= pxPerStep) {
+        const steps = Math.trunc(accum / pxPerStep);
+        if (steps !== 0) {
+          onStepChange(steps);
+          accum -= steps * pxPerStep;
         }
       }
     };
 
     const onEnd = () => {
       isDragging = false;
-      isHorizontalGesture = null;
+      accum = 0;
+      const container = canvas.closest('.viewport-canvas-container');
+      if (container) container.classList.remove('active-dragging');
     };
 
+    // Touch events (touch-action: none on canvas enables full dual-axis control)
     canvas.addEventListener('touchstart', onStart, { passive: true });
     canvas.addEventListener('touchmove', onMove, { passive: false });
     canvas.addEventListener('touchend', onEnd, { passive: true });
     canvas.addEventListener('touchcancel', onEnd, { passive: true });
 
+    // Mouse drag events
     canvas.addEventListener('mousedown', onStart);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
+
+    // Wheel / Trackpad scroll (supports both horizontal deltaX and vertical deltaY)
+    let wheelAccum = 0;
+    const onWheel = (e) => {
+      e.preventDefault();
+      const dominant = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      wheelAccum += dominant;
+      const threshold = (e.deltaMode === 1) ? 2 : 25;
+      if (Math.abs(wheelAccum) >= threshold) {
+        const steps = Math.sign(wheelAccum);
+        wheelAccum = 0;
+        onStepChange(-steps);
+      }
+    };
+    canvas.addEventListener('wheel', onWheel, { passive: false });
 
     // Returns a dispose function to cleanly remove all listeners if needed
     return () => {
@@ -344,6 +333,7 @@ class TouchController {
       canvas.removeEventListener('mousedown', onStart);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onEnd);
+      canvas.removeEventListener('wheel', onWheel);
     };
   }
 }
