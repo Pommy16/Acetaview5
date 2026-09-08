@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/videos/(.*)",
+      "source": "/(videos|images)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

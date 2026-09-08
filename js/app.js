@@ -661,6 +661,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnHome = document.getElementById('btnBackHome');
   if (btnHome) btnHome.addEventListener('click', () => window.handleHomeClick());
 
+  const btnInfo = document.getElementById('btnClassificationInfo');
+  if (btnInfo) btnInfo.addEventListener('click', () => window.openClassificationModal());
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      window.closeClassificationModal();
+      window.closeAdminModal();
+    }
+  });
+
   const btn2D = document.getElementById('btnMode2D');
   const btn3D = document.getElementById('btnMode3D');
   if (btn2D) btn2D.addEventListener('click', () => window.switchMode('2d'));
@@ -789,6 +799,22 @@ window.openAdminModal = function() {
 window.closeAdminModal = function() {
   const modal = document.getElementById('adminModal');
   if (modal) modal.style.display = 'none';
+};
+
+window.openClassificationModal = function() {
+  const modal = document.getElementById('classificationModal');
+  if (modal) modal.style.display = 'flex';
+};
+
+window.closeClassificationModal = function() {
+  const modal = document.getElementById('classificationModal');
+  if (modal) modal.style.display = 'none';
+};
+
+window.handleClassificationBackdrop = function(e) {
+  if (e.target.id === 'classificationModal' || e.target.classList.contains('classification-modal-body')) {
+    window.closeClassificationModal();
+  }
 };
 
 window.renderAdminCasesList = function() {

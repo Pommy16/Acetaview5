@@ -27,6 +27,9 @@
         <i class="fa-solid fa-house"></i>
         <span>Home</span>
       </button>
+      <button id="btnClassificationInfo" class="btn btn-icon-nav btn-info-helper" title="Acetabular Fracture Classification" aria-label="Acetabular Fracture Classification" onclick="openClassificationModal();">
+        <i class="fa-solid fa-info"></i>
+      </button>
     </div>
 
     <div class="header-center">
@@ -323,6 +326,26 @@
   <div id="adminToast" class="admin-toast">
     <i class="fa-solid fa-circle-check"></i>
     <span id="adminToastText">บันทึกข้อมูลสำเร็จเรียบร้อยแล้ว</span>
+  </div>
+
+  <!-- Acetabular Fracture Classification Reference Modal -->
+  <div id="classificationModal" class="classification-modal-overlay" style="display:none;" onclick="handleClassificationBackdrop(event);">
+    <div class="classification-modal-container">
+      <div class="classification-modal-header">
+        <div class="classification-modal-title">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Acetabular Fracture Classification (Letournel &amp; Judet)</span>
+        </div>
+        <button class="classification-modal-close" onclick="closeClassificationModal();" title="Close" aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="classification-modal-body" onclick="handleClassificationBackdrop(event);">
+        <div class="classification-image-frame" onclick="event.stopPropagation();">
+          <img src="./images/classification.webp" alt="Acetabular Fracture Classification (Letournel &amp; Judet)" class="classification-image">
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Single Unified Script -->
