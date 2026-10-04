@@ -19,7 +19,7 @@ import re
 import json
 import sys
 
-VALID_EXTENSIONS = ('.jpg', '.jpeg', '.webp', '.png')
+VALID_EXTENSIONS = ('.jpg',)
 VIEWS_2D = ['axial', 'sagittal', 'coronal']
 VIEWS_3D = ['3d_horizontal', '3d_vertical']
 ALL_VIEWS = VIEWS_2D + VIEWS_3D

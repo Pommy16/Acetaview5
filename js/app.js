@@ -19,23 +19,13 @@ window.CASES_DATA = [
 
 function getCandidateUrls(folderName, plane, i) {
   const s3 = String(i).padStart(3, '0');
-  const s2 = String(i).padStart(2, '0');
-  const s1 = String(i);
 
+  // All dataset frames are named ezgif-frame-NNN.jpg (jpg is the only supported format).
   return [
-    `./videos/${folderName}/${plane}/ezgif-frame-${s3}.jpg`,
-    `./videos/${folderName}/${plane}/ezgif-frame-${s2}.jpg`,
-    `./videos/${folderName}/${plane}/ezgif-frame-${s1}.jpg`,
-    `./videos/${folderName}/${plane}/ezgif-frame-${s3}.webp`,
-    `./videos/${folderName}/${plane}/ezgif-frame-${s2}.webp`,
-    `./videos/${folderName}/${plane}/ezgif-frame-${s3}.png`,
-    `./videos/${folderName}/${plane}/ezgif-frame-${s2}.png`,
-    `./videos/${folderName}/${plane}/${s3}.jpg`,
-    `./videos/${folderName}/${plane}/${s2}.jpg`,
-    `./videos/${folderName}/${plane}/${s3}.webp`,
-    `./videos/${folderName}/${plane}/${s2}.webp`
+    `./videos/${folderName}/${plane}/ezgif-frame-${s3}.jpg`
   ];
 }
+
 
 // 2. UNIVERSAL IMAGE SEQUENCE ENGINE WITH EXACT FRAME DETECTION
 class ImageSequenceManager {
@@ -91,13 +81,23 @@ class ImageSequenceManager {
         this.loadSingleFrame(folderName, plane, i);
       }
 
-      // PHASE 2: Background key-frame scan in small batches every 200ms
+      // PHASE 2: Background load of the remaining declared frames in small batches every 200ms.
+      // casesData.js counts are only a starting point (cases may change): a missing frame inside
+      // the range shrinks the count, and the tail probe below grows it if more frames exist.
       const batchSize = 5;
-      const maxScan = (plane === '3d_horizontal') ? Math.max(defaultCount + 10, 110)
-                    : (plane === '3d_vertical')   ? Math.max(defaultCount + 10, 120)
-                    : Math.max(defaultCount + 10, 200);
+      const maxScan = defaultCount;
       let batchStart = initialLoad + 1;
-      let consecutiveMiss = 0; // Early-stop: track consecutive frames with no valid image
+
+      // Tail probe: check frame count+1, +2... until one is missing (~3 cheap 404s per plane
+      // when casesData.js is correct).
+      const startTailProbe = () => {
+        const probe = (i) => {
+          this.loadSingleFrame(folderName, plane, i, (found) => {
+            if (found && myGen === this.generation) probe(i + 1);
+          });
+        };
+        setTimeout(() => { if (myGen === this.generation) probe(maxScan + 1); }, 1500);
+      };
 
       const scanNextBatch = () => {
         // Stop if case changed
@@ -105,35 +105,28 @@ class ImageSequenceManager {
 
         const batchEnd = Math.min(batchStart + batchSize - 1, maxScan);
         for (let i = batchStart; i <= batchEnd; i++) {
-          const img = this.loadSingleFrame(folderName, plane, i);
-
-          const frameIdx = i;
-          setTimeout(() => {
-            if (myGen !== this.generation) return;
-            const slot = this.cache[key] ? this.cache[key][frameIdx - 1] : undefined;
-            if (slot === null) {
-              consecutiveMiss++;
-            } else if (slot && slot.complete && slot.naturalWidth > 0) {
-              consecutiveMiss = 0; // reset on any successful frame
-            }
-          }, 2000);
+          this.loadSingleFrame(folderName, plane, i);
         }
 
         batchStart += batchSize;
 
-        // Stop scanning if: reached maxScan OR 3 consecutive misses detected
-        if (batchStart <= maxScan && consecutiveMiss < 3) {
+        if (batchStart <= maxScan) {
           setTimeout(scanNextBatch, 200);
+        } else {
+          startTailProbe();
         }
       };
 
       if (batchStart <= maxScan) {
         setTimeout(scanNextBatch, 500);
+      } else {
+        startTailProbe();
       }
+
     });
   }
 
-  loadSingleFrame(folderName, plane, index) {
+  loadSingleFrame(folderName, plane, index, onDone) {
     if (index < 1) return null;
 
     const key = `${folderName}_${plane}`;
@@ -143,6 +136,7 @@ class ImageSequenceManager {
       return this.cache[key][index - 1];
     }
 
+    const is2D = (plane === 'axial' || plane === 'sagittal' || plane === 'coronal');
     const candidates = getCandidateUrls(folderName, plane, index);
     const img = new Image();
     let candidateIdx = 0;
@@ -152,6 +146,14 @@ class ImageSequenceManager {
         img.src = candidates[candidateIdx++];
       } else {
         this.cache[key][index - 1] = null;
+        // Frame counts in casesData.js may be stale (cases still change): if a frame inside the
+        // declared range does not exist, shrink the count so sliders never show blank frames.
+        const cur = this.detectedCounts[key];
+        if (cur !== undefined && index > 1 && index <= cur) {
+          this.detectedCounts[key] = index - 1;
+          if (is2D) window.updateSliderLimits(plane, index - 1);
+        }
+        if (onDone) onDone(false);
       }
     };
 
@@ -160,20 +162,21 @@ class ImageSequenceManager {
       const curMax = this.detectedCounts[key] || 0;
       if (index > curMax) {
         this.detectedCounts[key] = index;
-        if (plane === 'axial' || plane === 'sagittal' || plane === 'coronal') {
+        if (is2D) {
           window.updateSliderLimits(plane, index);
         }
       }
 
       // Debounce via rAF: cancel any pending frame before scheduling a new one
       // Prevents 25+ redundant canvas redraws per 200ms batch during background loading
-      if (plane === 'axial' || plane === 'sagittal' || plane === 'coronal') {
+      if (is2D) {
         cancelAnimationFrame(window._raf2D);
         window._raf2D = requestAnimationFrame(() => window.renderAll2D());
       } else {
         cancelAnimationFrame(window._raf3D);
         window._raf3D = requestAnimationFrame(() => window.render3D());
       }
+      if (onDone) onDone(true);
     };
 
     img.onerror = () => {
