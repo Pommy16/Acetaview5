@@ -5,16 +5,16 @@
 
 // 1. CASES DATA
 window.CASES_DATA = [
-  { id: "case-01", caseNumber: 1, title: "Case 01", folder: "Case01", slices: { axial: 140, sagittal: 111, coronal: 108 }, views3d: { horizontal: 92, vertical: 108 } },
+  { id: "case-01", caseNumber: 1, title: "Case 01", folder: "Case01", slices: { axial: 105, sagittal: 104, coronal: 104 }, views3d: { horizontal: 35, vertical: 40 } },
   { id: "case-02", caseNumber: 2, title: "Case 02", folder: "Case02", slices: { axial: 160, sagittal: 153, coronal: 148 }, views3d: { horizontal: 27, vertical: 26 } },
   { id: "case-03", caseNumber: 3, title: "Case 03", folder: "Case03", slices: { axial: 103, sagittal: 106, coronal: 99 }, views3d: { horizontal: 24, vertical: 27 } },
   { id: "case-04", caseNumber: 4, title: "Case 04", folder: "Case04", slices: { axial: 101, sagittal: 98, coronal: 84 }, views3d: { horizontal: 32, vertical: 30 } },
   { id: "case-05", caseNumber: 5, title: "Case 05", folder: "Case05", slices: { axial: 100, sagittal: 96, coronal: 100 }, views3d: { horizontal: 18, vertical: 26 } },
-  { id: "case-06", caseNumber: 6, title: "Case 06", folder: "Case06", slices: { axial: 140, sagittal: 111, coronal: 108 }, views3d: { horizontal: 92, vertical: 108 } },
-  { id: "case-07", caseNumber: 7, title: "Case 07", folder: "Case07", slices: { axial: 140, sagittal: 111, coronal: 108 }, views3d: { horizontal: 92, vertical: 108 } },
-  { id: "case-08", caseNumber: 8, title: "Case 08", folder: "Case08", slices: { axial: 140, sagittal: 111, coronal: 108 }, views3d: { horizontal: 92, vertical: 108 } },
-  { id: "case-09", caseNumber: 9, title: "Case 09", folder: "Case09", slices: { axial: 140, sagittal: 111, coronal: 108 }, views3d: { horizontal: 92, vertical: 108 } },
-  { id: "case-10", caseNumber: 10, title: "Case 10", folder: "Case10", slices: { axial: 140, sagittal: 111, coronal: 108 }, views3d: { horizontal: 92, vertical: 108 } }
+  { id: "case-06", caseNumber: 6, title: "Case 06", folder: "Case06", slices: { axial: 116, sagittal: 105, coronal: 90 }, views3d: { horizontal: 40, vertical: 42 } },
+  { id: "case-07", caseNumber: 7, title: "Case 07", folder: "Case07", slices: { axial: 88, sagittal: 85, coronal: 75 }, views3d: { horizontal: 52, vertical: 64 } },
+  { id: "case-08", caseNumber: 8, title: "Case 08", folder: "Case08", slices: { axial: 110, sagittal: 108, coronal: 110 }, views3d: { horizontal: 50, vertical: 38 } },
+  { id: "case-09", caseNumber: 9, title: "Case 09", folder: "Case09", slices: { axial: 103, sagittal: 96, coronal: 75 }, views3d: { horizontal: 40, vertical: 38 } },
+  { id: "case-10", caseNumber: 10, title: "Case 10", folder: "Case10", slices: { axial: 89, sagittal: 96, coronal: 81 }, views3d: { horizontal: 40, vertical: 36 } }
 ];
 
 function getCandidateUrls(folderName, plane, i) {
@@ -151,7 +151,7 @@ class ImageSequenceManager {
         const cur = this.detectedCounts[key];
         if (cur !== undefined && index > 1 && index <= cur) {
           this.detectedCounts[key] = index - 1;
-          if (is2D) window.updateSliderLimits(plane, index - 1);
+          if (is2D || plane === '3d_vertical') window.updateSliderLimits(plane, index - 1);
         }
         if (onDone) onDone(false);
       }
@@ -162,7 +162,7 @@ class ImageSequenceManager {
       const curMax = this.detectedCounts[key] || 0;
       if (index > curMax) {
         this.detectedCounts[key] = index;
-        if (is2D) {
+        if (is2D || plane === '3d_vertical') {
           window.updateSliderLimits(plane, index);
         }
       }
@@ -192,7 +192,10 @@ class ImageSequenceManager {
     const key = `${folderName}_${plane}`;
     const maxCount = this.detectedCounts[key] || ((plane === '3d_vertical') ? 108 : (plane === '3d_horizontal') ? 92 : 100);
 
-    const safeIndex = Math.max(1, Math.min(maxCount, ((index - 1 + maxCount) % maxCount) + 1));
+    const isLooping = (plane === '3d_horizontal');
+    const safeIndex = isLooping
+      ? (((index - 1) % maxCount + maxCount) % maxCount) + 1
+      : Math.max(1, Math.min(maxCount, index));
     
     let img = this.cache[key] ? this.cache[key][safeIndex - 1] : null;
     if (!img) {
@@ -216,7 +219,13 @@ class ImageSequenceManager {
       if (maxCount > 1) {
         for (let k = -10; k <= 10; k++) {
           if (k === 0) continue;
-          const targetIdx = ((safeIndex - 1 + k + maxCount) % maxCount + maxCount) % maxCount + 1;
+          let targetIdx;
+          if (isLooping) {
+            targetIdx = ((safeIndex - 1 + k + maxCount) % maxCount + maxCount) % maxCount + 1;
+          } else {
+            targetIdx = safeIndex + k;
+            if (targetIdx < 1 || targetIdx > maxCount) continue;
+          }
           this.loadSingleFrame(folderName, plane, targetIdx);
         }
       }
@@ -344,7 +353,7 @@ class TouchController {
 // 4. MAIN WORKSPACE APP STATE
 let currentCaseObj = window.CASES_DATA[0];
 let slicesState = { axial: 1, sagittal: 1, coronal: 1 };
-let rot3DState = { horiz: 0, vert: 0 };
+let rot3DState = { horiz: 0, vert: 1 };
 let currentViewMode = 2; // 2 = 2-View Fit (default), 3 = 3-View Fit
 let slotPlanes = { 1: 'axial', 2: 'coronal', 3: 'sagittal' };
 
@@ -364,6 +373,17 @@ window.updateSliderProgress = function(sliderId) {
 };
 
 window.updateSliderLimits = function(plane, maxCount) {
+  if (plane === '3d_vertical') {
+    const sliderV = document.getElementById('slider3DVert');
+    if (sliderV && maxCount > 0) {
+      sliderV.max = maxCount;
+      if (rot3DState.vert > maxCount) rot3DState.vert = maxCount;
+    }
+    clearTimeout(window._slider3DDebounce);
+    window._slider3DDebounce = setTimeout(() => window.render3D(), 16);
+    return;
+  }
+
   [1, 2, 3].forEach(slotNum => {
     if (slotPlanes[slotNum] === plane) {
       const slider = document.getElementById(`sliderSlot${slotNum}`);
@@ -423,12 +443,24 @@ window.openCase = function(caseId) {
   });
 
   rot3DState.horiz = 0;
-  rot3DState.vert = 0;
+  rot3DState.vert = 1;
 
   const slider3DH = document.getElementById('slider3DHoriz');
   const slider3DV = document.getElementById('slider3DVert');
   if (slider3DH) slider3DH.value = 0;
-  if (slider3DV) slider3DV.value = 0;
+  if (slider3DV) {
+    const countV = window.imageSequenceManager.detectedCounts[`${currentCaseObj.folder}_3d_vertical`] || (currentCaseObj.views3d ? currentCaseObj.views3d.vertical : 108);
+    slider3DV.min = 1;
+    slider3DV.max = countV;
+    slider3DV.value = 1;
+    window.updateSliderProgress('slider3DVert');
+  }
+
+  const badgeV = document.getElementById('badge3DVert');
+  if (badgeV) {
+    const countV = window.imageSequenceManager.detectedCounts[`${currentCaseObj.folder}_3d_vertical`] || (currentCaseObj.views3d ? currentCaseObj.views3d.vertical : 108);
+    badgeV.textContent = `1/${countV}`;
+  }
 
   window.switchMode('2d');
 };
@@ -626,14 +658,22 @@ window.render3D = function() {
     const frameH = Math.floor(ratioH * countH) + 1;
 
     const countV = window.imageSequenceManager.detectedCounts[`${currentCaseObj.folder}_3d_vertical`] || (currentCaseObj.views3d ? currentCaseObj.views3d.vertical : 108);
-    const ratioV = Math.max(0, Math.min(0.9999, (rot3DState.vert % 360) / 360));
-    const frameV = Math.floor(ratioV * countV) + 1;
+    const frameV = Math.max(1, Math.min(countV, rot3DState.vert || 1));
 
     const ctxH = canvasH.getContext('2d');
     const ctxV = canvasV.getContext('2d');
 
     window.imageSequenceManager.drawFrame(ctxH, currentCaseObj.folder, '3d_horizontal', frameH, canvasH.width, canvasH.height);
     window.imageSequenceManager.drawFrame(ctxV, currentCaseObj.folder, '3d_vertical', frameV, canvasV.width, canvasV.height);
+
+    const badgeV = document.getElementById('badge3DVert');
+    if (badgeV) badgeV.textContent = `${frameV}/${countV}`;
+
+    const sliderV = document.getElementById('slider3DVert');
+    if (sliderV) {
+      sliderV.max = countV;
+      sliderV.value = frameV;
+    }
 
     window.updateSliderProgress('slider3DHoriz');
     window.updateSliderProgress('slider3DVert');
@@ -702,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.renderAll2D();
   });
   if (slider3DH) slider3DH.addEventListener('input', (e) => { rot3DState.horiz = parseInt(e.target.value); window.render3D(); });
-  if (slider3DV) slider3DV.addEventListener('input', (e) => { rot3DState.vert = parseInt(e.target.value); window.render3D(); });
+  if (slider3DV) slider3DV.addEventListener('input', (e) => { rot3DState.vert = parseInt(e.target.value, 10); window.render3D(); });
 
   // Touch Scrubbing for 2D Slots 1, 2, 3
   TouchController.bindScrub(document.getElementById('canvasSlot1'), (step) => {
@@ -736,9 +776,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   TouchController.bindScrub(document.getElementById('canvas3DVert'), (step) => {
     const countV = window.imageSequenceManager.detectedCounts[`${currentCaseObj.folder}_3d_vertical`] || (currentCaseObj.views3d ? currentCaseObj.views3d.vertical : 108);
-    const degreePerFrame = 360 / countV;
-    rot3DState.vert = (rot3DState.vert - step * degreePerFrame + 360) % 360;
-    document.getElementById('slider3DVert').value = rot3DState.vert;
+    rot3DState.vert = Math.max(1, Math.min(countV, (rot3DState.vert || 1) - step));
+    const sliderV = document.getElementById('slider3DVert');
+    if (sliderV) sliderV.value = rot3DState.vert;
     window.render3D();
   });
   // 5. STABILITY: Re-render when user returns from lock screen or app switch
@@ -749,6 +789,37 @@ document.addEventListener('DOMContentLoaded', () => {
       window.render3D();
     }
   });
+
+  // 6. DEEP-LINKING: Handle URL query parameters (e.g. ?case=case-01&mode=2d&view=2&slice=50)
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetCase = urlParams.get('case');
+  if (targetCase) {
+    window.openCase(targetCase);
+    const targetMode = urlParams.get('mode');
+    if (targetMode === '3d') {
+      window.switchMode('3d');
+    }
+    const targetView = urlParams.get('view');
+    if (targetView === '3' && currentViewMode !== 3) {
+      window.toggleViewOption();
+    }
+    const targetSlice = parseInt(urlParams.get('slice'), 10);
+    if (!isNaN(targetSlice)) {
+      slicesState.axial = targetSlice;
+      slicesState.coronal = targetSlice;
+      slicesState.sagittal = targetSlice;
+      rot3DState.vert = targetSlice;
+      window.renderAll2D();
+      window.render3D();
+    }
+    if (urlParams.get('fullscreen') === 'true') {
+      const fsBtn = document.querySelector('#layout2D .viewport-box .btn-fullscreen');
+      if (fsBtn) window.toggleFullscreen(fsBtn);
+    }
+    if (urlParams.get('modal') === 'classification') {
+      window.openClassificationModal();
+    }
+  }
 });
 
 // ==========================================
