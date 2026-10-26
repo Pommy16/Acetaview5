@@ -18,7 +18,7 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="./styles.css">
 </head>
-<body>
+<body class="is-home-view">
 
   <!-- Unified Top Header Navigation Bar -->
   <header class="app-header">
@@ -72,81 +72,98 @@
     </div>
   </header>
 
-  <!-- VIEW 1: Home Case Selector (10 Minimalist Case Cards) -->
+  <!-- VIEW 1: Home Manual Guide & Exam Entry -->
   <main id="homeView" class="view-section active">
+    <div class="manual-guide-container">
+      <div class="manual-guide-row">
+        <div class="manual-guide-col">
+          <div class="manual-img-card">
+            <img src="./images/คู่มือการใช้งาน GGform.jpg" alt="คู่มือการใช้งาน Google Form" class="manual-guide-img">
+          </div>
+        </div>
+        <div class="manual-guide-col">
+          <div class="manual-img-card">
+            <img src="./images/คู่มือการใช้งาน CTviewer.jpg" alt="คู่มือการใช้งาน CT Viewer" class="manual-guide-img">
+          </div>
+        </div>
+      </div>
+      <div class="manual-actions">
+        <button id="btnStartTest" class="btn btn-start-test" onclick="openPasscodeModal();">
+          <i class="fa-solid fa-play"></i>
+          <span>เริ่มทำแบบทดสอบ</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- VIEW 1.5: Admin Untimed 10-Case Cards Selector -->
+  <main id="adminCasesView" class="view-section" style="display:none;">
+    <div class="admin-cases-header">
+      <div class="admin-cases-title-wrap">
+        <h2 class="admin-cases-heading">
+          <i class="fa-solid fa-user-shield"></i>
+          <span>โหมดผู้ดูแลระบบ (Admin) — เลือกดูเคสอิสระ ไม่จับเวลา</span>
+        </h2>
+        <p class="admin-cases-subheading">เลือกเคสที่ต้องการเพื่อดูภาพ CT แบบไม่มีการจับเวลา และสามารถสลับเคสได้อย่างอิสระ</p>
+      </div>
+      <button class="btn btn-secondary" onclick="showHome();">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>กลับหน้าคู่มือ</span>
+      </button>
+    </div>
+
     <!-- 10 Minimalist Case Cards Grid -->
-    <div id="casesGrid" class="cases-grid">
-      
-      <!-- Case 01 -->
-      <div class="case-card" onclick="openCase('case-01');">
+    <div id="adminCasesGrid" class="cases-grid">
+      <div class="case-card" onclick="openAdminCase('case-01');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 01</h2>
         </div>
       </div>
-
-      <!-- Case 02 -->
-      <div class="case-card" onclick="openCase('case-02');">
+      <div class="case-card" onclick="openAdminCase('case-02');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 02</h2>
         </div>
       </div>
-
-      <!-- Case 03 -->
-      <div class="case-card" onclick="openCase('case-03');">
+      <div class="case-card" onclick="openAdminCase('case-03');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 03</h2>
         </div>
       </div>
-
-      <!-- Case 04 -->
-      <div class="case-card" onclick="openCase('case-04');">
+      <div class="case-card" onclick="openAdminCase('case-04');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 04</h2>
         </div>
       </div>
-
-      <!-- Case 05 -->
-      <div class="case-card" onclick="openCase('case-05');">
+      <div class="case-card" onclick="openAdminCase('case-05');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 05</h2>
         </div>
       </div>
-
-      <!-- Case 06 -->
-      <div class="case-card" onclick="openCase('case-06');">
+      <div class="case-card" onclick="openAdminCase('case-06');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 06</h2>
         </div>
       </div>
-
-      <!-- Case 07 -->
-      <div class="case-card" onclick="openCase('case-07');">
+      <div class="case-card" onclick="openAdminCase('case-07');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 07</h2>
         </div>
       </div>
-
-      <!-- Case 08 -->
-      <div class="case-card" onclick="openCase('case-08');">
+      <div class="case-card" onclick="openAdminCase('case-08');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 08</h2>
         </div>
       </div>
-
-      <!-- Case 09 -->
-      <div class="case-card" onclick="openCase('case-09');">
+      <div class="case-card" onclick="openAdminCase('case-09');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 09</h2>
         </div>
       </div>
-
-      <!-- Case 10 -->
-      <div class="case-card" onclick="openCase('case-10');">
+      <div class="case-card" onclick="openAdminCase('case-10');">
         <div class="case-card-inner">
           <h2 class="case-title">Case 10</h2>
         </div>
       </div>
-
     </div>
   </main>
 
@@ -233,10 +250,10 @@
 
         <!-- 3D Reconstruction Dual Viewports (Horizontal 360 Loop & Vertical Linear Tilt) -->
         <div id="layout3D" class="view-3d-layout" style="display:none;">
-          <div class="view-3d-grid">
+          <div id="grid3D" class="view-3d-grid">
             
             <!-- 3D Horizontal Viewport -->
-            <div class="viewport-box">
+            <div id="box3DHoriz" class="viewport-box">
               <div class="viewport-header">
                 <div class="viewport-title">
                   <i class="fa-solid fa-arrows-spin"></i>
@@ -257,7 +274,7 @@
             </div>
 
             <!-- 3D Vertical Viewport -->
-            <div class="viewport-box">
+            <div id="box3DVert" class="viewport-box">
               <div class="viewport-header">
                 <div class="viewport-title">
                   <i class="fa-solid fa-arrows-up-down"></i>
@@ -282,6 +299,37 @@
         </div>
 
       </div>
+
+      <!-- Bottom Test Timer Bar -->
+      <footer id="testTimerBar" class="test-timer-bar">
+        <div class="timer-progress-track">
+          <div id="timerProgressBar" class="timer-progress-fill"></div>
+        </div>
+        <div class="timer-bar-content">
+          <div class="timer-case-indicator">
+            <span class="timer-case-badge" id="timerCaseBadge">Case 01</span>
+            <span class="timer-step-badge" id="timerStepBadge">เคส 1 จาก 10</span>
+          </div>
+
+          <div class="timer-clock-center">
+            <div class="timer-display-wrap">
+              <i class="fa-regular fa-clock timer-clock-icon"></i>
+              <span id="timerCountdown" class="timer-countdown">05:00</span>
+            </div>
+            <div id="timerWarningBadge" class="timer-warning-badge" style="display:none;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>เหลือเวลา 30 วินาที</span>
+            </div>
+          </div>
+
+          <div class="timer-actions-right">
+            <button id="btnSkipCase" class="btn btn-skip-case" onclick="openSkipConfirmModal();">
+              <span>ข้ามข้อ</span>
+              <i class="fa-solid fa-forward-step"></i>
+            </button>
+          </div>
+        </div>
+      </footer>
 
     </div>
   </div>
@@ -345,6 +393,145 @@
         <div class="classification-image-frame" onclick="event.stopPropagation();">
           <img src="./images/classification.webp" alt="Acetabular Fracture Classification (Letournel &amp; Judet)" class="classification-image">
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passcode Verification Modal -->
+  <div id="passcodeModal" class="test-modal-overlay" style="display:none;" onclick="handlePasscodeBackdrop(event);">
+    <div class="test-modal-container" onclick="event.stopPropagation();">
+      <div class="test-modal-header">
+        <div class="test-modal-title">
+          <i class="fa-solid fa-lock"></i>
+          <span>กรุณากรอกรหัสผ่านเพื่อเริ่มทำแบบทดสอบ</span>
+        </div>
+        <button class="test-modal-close" onclick="closePasscodeModal();" title="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="test-modal-body">
+        <p class="test-modal-desc">กรอกรหัสผ่านเพื่อเริ่มทำแบบทดสอบ (ป้องกันการเปิดก่อนเวลา)</p>
+        <div class="passcode-input-group">
+          <input type="password" id="passcodeInput" class="passcode-input" maxlength="10" placeholder="กรอกรหัสผ่าน" inputmode="numeric" autocomplete="off" onkeydown="handlePasscodeKeyDown(event);">
+        </div>
+        <div id="passcodeError" class="passcode-error" style="display:none;">
+          <i class="fa-solid fa-circle-exclamation"></i> รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง
+        </div>
+      </div>
+      <div class="test-modal-footer">
+        <button class="btn btn-secondary" onclick="closePasscodeModal();">ยกเลิก</button>
+        <button class="btn btn-primary-start" onclick="verifyPasscodeAndStart();">
+          <i class="fa-solid fa-check"></i> ตกลง
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exit Exam Passcode Modal (Code: 8888) -->
+  <div id="exitPasscodeModal" class="test-modal-overlay" style="display:none;" onclick="handleExitPasscodeBackdrop(event);">
+    <div class="test-modal-container test-modal-warning" onclick="event.stopPropagation();">
+      <div class="test-modal-header">
+        <div class="test-modal-title">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>ออกจากแบบทดสอบกลับหน้าหลัก</span>
+        </div>
+        <button class="test-modal-close" onclick="closeExitPasscodeModal();" title="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="test-modal-body">
+        <p class="test-modal-desc">
+          การออกจากแบบทดสอบจะ<strong>ยกเลิกการสอบทันที</strong><br>
+          กรุณากรอกรหัสผ่านเพื่อยืนยันการกลับสู่หน้าหลัก
+        </p>
+        <div class="passcode-input-group">
+          <input type="password" id="exitPasscodeInput" class="passcode-input" maxlength="10" placeholder="กรอกรหัสผ่าน" inputmode="numeric" autocomplete="off" onkeydown="handleExitPasscodeKeyDown(event);">
+        </div>
+        <div id="exitPasscodeError" class="passcode-error" style="display:none;">
+          <i class="fa-solid fa-circle-exclamation"></i> รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง
+        </div>
+      </div>
+      <div class="test-modal-footer">
+        <button class="btn btn-secondary" onclick="closeExitPasscodeModal();">ยกเลิก</button>
+        <button class="btn btn-danger-confirm" onclick="verifyExitPasscodeAndReturn();">
+          <i class="fa-solid fa-house"></i> ยืนยันกลับหน้าหลัก
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Access Passcode Modal (Code: 8888) -->
+  <div id="adminAccessModal" class="test-modal-overlay" style="display:none;" onclick="handleAdminAccessBackdrop(event);">
+    <div class="test-modal-container" onclick="event.stopPropagation();">
+      <div class="test-modal-header">
+        <div class="test-modal-title">
+          <i class="fa-solid fa-user-shield"></i>
+          <span>เข้าสู่โหมดผู้ดูแลระบบ (Admin)</span>
+        </div>
+        <button class="test-modal-close" onclick="closeAdminAccessModal();" title="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="test-modal-body">
+        <p class="test-modal-desc">กรุณากรอกรหัสผ่านเพื่อเข้าสู่โหมดดูเคสอิสระ (ไม่จับเวลา)</p>
+        <div class="passcode-input-group">
+          <input type="password" id="adminAccessInput" class="passcode-input" maxlength="10" placeholder="กรอกรหัสผ่าน" inputmode="numeric" autocomplete="off" onkeydown="handleAdminAccessKeyDown(event);">
+        </div>
+        <div id="adminAccessError" class="passcode-error" style="display:none;">
+          <i class="fa-solid fa-circle-exclamation"></i> รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง
+        </div>
+      </div>
+      <div class="test-modal-footer">
+        <button class="btn btn-secondary" onclick="closeAdminAccessModal();">ยกเลิก</button>
+        <button class="btn btn-primary-start" onclick="verifyAdminAccessAndOpen();">
+          <i class="fa-solid fa-check"></i> ตกลง
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skip Case Confirmation Modal -->
+  <div id="skipConfirmModal" class="test-modal-overlay" style="display:none;" onclick="handleSkipBackdrop(event);">
+    <div class="test-modal-container test-modal-warning" onclick="event.stopPropagation();">
+      <div class="test-modal-header">
+        <div class="test-modal-title">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>ยืนยันการข้ามเคส</span>
+        </div>
+        <button class="test-modal-close" onclick="closeSkipConfirmModal();" title="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="test-modal-body">
+        <p class="test-modal-desc">
+          หากข้ามข้อนี้แล้ว <strong>ท่านจะไม่สามารถกดย้อนกลับมาดูเคสนี้ได้อีก</strong><br>
+          ต้องการข้ามไปยังเคสถัดไปหรือไม่?
+        </p>
+      </div>
+      <div class="test-modal-footer">
+        <button class="btn btn-secondary" onclick="closeSkipConfirmModal();">ยกเลิก</button>
+        <button class="btn btn-danger-confirm" onclick="confirmSkipCase();">
+          <i class="fa-solid fa-forward-step"></i> ยืนยันการข้ามเคส
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Complete Modal -->
+  <div id="testCompleteModal" class="test-modal-overlay" style="display:none;">
+    <div class="test-modal-container test-modal-complete" onclick="event.stopPropagation();">
+      <div class="test-modal-body" style="padding: 32px 24px; text-align: center;">
+        <div class="complete-icon">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h2 class="complete-title">สิ้นสุดการทำแบบทดสอบ</h2>
+        <p class="complete-desc">
+          ท่านได้ดูเคสครบทั้ง 10 เคสเรียบร้อยแล้ว<br>
+          กรุณาตรวจสอบและส่งคำตอบใน Google Form
+        </p>
+        <button class="btn btn-secondary" onclick="resetToHome();" style="margin-top: 20px;">
+          <i class="fa-solid fa-house"></i> กลับสู่หน้าแรก
+        </button>
       </div>
     </div>
   </div>

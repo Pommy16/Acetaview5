@@ -2,71 +2,71 @@
   {
     "id": "case-01",
     "title": "Case 01",
-    "patientName": "",
-    "hn": "",
-    "diagnosis": ""
+    "patientName": "ณัฐพงศ์",
+    "hn": "3228/66",
+    "diagnosis": "T Type (T-shaped)"
   },
   {
     "id": "case-02",
     "title": "Case 02",
-    "patientName": "วีนัส",
-    "hn": "2461365",
-    "diagnosis": "Post wall"
+    "patientName": "Rith",
+    "hn": "2384/64",
+    "diagnosis": "AC PHT (Anterior Column + Posterior Hemitransverse)"
   },
   {
     "id": "case-03",
     "title": "Case 03",
-    "patientName": "",
+    "patientName": "บุญธรรม",
     "hn": "",
-    "diagnosis": ""
+    "diagnosis": "Ant column (Anterior Column)"
   },
   {
     "id": "case-04",
     "title": "Case 04",
-    "patientName": "",
-    "hn": "",
-    "diagnosis": ""
+    "patientName": "มนตรี",
+    "hn": "133197/44",
+    "diagnosis": "BC 2 (Both Column 2)"
   },
   {
     "id": "case-05",
     "title": "Case 05",
-    "patientName": "",
+    "patientName": "เคสอาจารย์ออม (PW)",
     "hn": "",
-    "diagnosis": ""
+    "diagnosis": "PW (Posterior Wall)"
   },
   {
     "id": "case-06",
     "title": "Case 06",
-    "patientName": "",
-    "hn": "",
-    "diagnosis": ""
+    "patientName": "ศุภชัย",
+    "hn": "100191/63",
+    "diagnosis": "AW (Anterior Wall)"
   },
   {
     "id": "case-07",
     "title": "Case 07",
-    "patientName": "",
-    "hn": "",
-    "diagnosis": ""
+    "patientName": "พิพัฒน์",
+    "hn": "8959463",
+    "diagnosis": "Trans (Transverse)"
   },
   {
     "id": "case-08",
     "title": "Case 08",
-    "patientName": "",
-    "hn": "",
-    "diagnosis": ""
+    "patientName": "นายสรรเสริญ ฉิมท้วม",
+    "hn": "1862368",
+    "diagnosis": "PC + PW (Posterior Column + Posterior Wall)"
   },
   {
     "id": "case-09",
     "title": "Case 09",
-    "patientName": "",
+    "patientName": "ชุติมา",
     "hn": "",
-    "diagnosis": ""
+    "diagnosis": "BC 1 (Both Column 1)"
   },
   {
     "id": "case-10",
     "title": "Case 10",
-    "patientName": "",
-    "hn": "",
-    "diagnosis": ""
+    "patientName": "นายธนากรณ์ สภาพันธ์",
+    "hn": "2817469",
+    "diagnosis": "Trans + PW (Transverse + Posterior Wall)"
   }
 ]

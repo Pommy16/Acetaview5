@@ -10,6 +10,7 @@ __pycache__/
 *$py.class
 scratch/
 
-# Cloudflare / Wrangler
+# Backups
+videos_backup_old/
 .wrangler/
 .mf/
