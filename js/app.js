@@ -898,6 +898,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      const lightbox = document.getElementById('imageLightboxModal');
+      if (lightbox && lightbox.style.display !== 'none') {
+        window.closeImageLightbox();
+        return;
+      }
       window.closeClassificationModal();
       window.closeAdminModal();
       window.closePasscodeModal();
@@ -1114,6 +1119,7 @@ window.openClassificationModal = function() {
 };
 
 window.closeClassificationModal = function() {
+  window.closeImageLightbox();
   const modal = document.getElementById('classificationModal');
   if (modal) modal.style.display = 'none';
 };
@@ -1122,6 +1128,27 @@ window.handleClassificationBackdrop = function(e) {
   if (e.target.id === 'classificationModal' || e.target.classList.contains('classification-modal-body')) {
     window.closeClassificationModal();
   }
+};
+
+window.openImageLightbox = function(src, title) {
+  const modal = document.getElementById('imageLightboxModal');
+  const imgEl = document.getElementById('imageLightboxImg');
+  const titleEl = document.getElementById('imageLightboxTitleText');
+  if (!modal || !imgEl) return;
+
+  imgEl.src = src;
+  imgEl.alt = title || 'Enlarged Image';
+  if (titleEl) {
+    titleEl.textContent = title || 'รูปภาพขยายเต็มจอ';
+  }
+  modal.style.display = 'flex';
+  const bodyEl = modal.querySelector('.image-lightbox-body');
+  if (bodyEl) bodyEl.scrollTop = 0;
+};
+
+window.closeImageLightbox = function() {
+  const modal = document.getElementById('imageLightboxModal');
+  if (modal) modal.style.display = 'none';
 };
 
 window.renderAdminCasesList = function() {

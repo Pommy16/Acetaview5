@@ -146,25 +146,18 @@ flowchart TD
 
 ---
 
-## 8. การเปิดแผ่นอ้างอิง Judet & Letournel Classification
+## 8. การเปิดคู่มือการใช้งานและแผ่นอ้างอิง Judet & Letournel Classification
 
-เพื่ออำนวยความสะดวกในการจำแนกประเภทกระดูกเบ้าสะโพกหักตามมาตรฐานสากล:
+เพื่ออำนวยความสะดวกในการทบทวนวิธีใช้งานและจำแนกประเภทกระดูกเบ้าสะโพกหักระหว่างทำแบบทดสอบ:
 
-1. แตะปุ่ม **Classification Reference (หมายเลข ②)** <i class="fa-solid fa-info"></i> บนแถบ Header
-2. หน้าต่าง Modal จะแสดงแผนผัง **Judet & Letournel Classification** ครอบคลุมทั้ง:
-   * **Elementary Fractures (5 รูปแบบ):**
-     * Posterior Wall
-     * Posterior Column
-     * Anterior Wall
-     * Anterior Column
-     * Transverse
-   * **Associated Fractures (5 รูปแบบ):**
-     * T-shaped
-     * Posterior Column + Posterior Wall
-     * Transverse + Posterior Wall
-     * Anterior Column / Wall + Posterior Hemitransverse
-     * Both Column (Floating Acetabulum)
-3. แตะปุ่มกากบาท `✕` ที่มุมขวาบน หรือแตะพื้นที่สีดำด้านนอกเพื่อปิดหน้าต่างแล้วกลับสู่การอ่านภาพทันที
+1. แตะปุ่ม **Info (หมายเลข ②)** <i class="fa-solid fa-info"></i> บนแถบ Header
+2. หน้าต่าง Popup แบบเต็มจอจะแสดงข้อมูลทั้ง 3 ส่วนพร้อมกัน:
+   * **คู่มือการใช้งาน CT Viewer:** แสดงวิธีการควบคุม 2D/3D และเครื่องมือต่าง ๆ
+   * **คู่มือการใช้งาน Google Form:** แสดงขั้นตอนการบันทึกคำตอบในแบบฟอร์ม
+   * **Judet & Letournel Classification:** แผนผังจำแนกประเภทกระดูกเบ้าสะโพกหักมาตรฐาน
+     * *Elementary Fractures:* Posterior Wall, Posterior Column, Anterior Wall, Anterior Column, Transverse
+     * *Associated Fractures:* T-shaped, Posterior Column + Posterior Wall, Transverse + Posterior Wall, Anterior Column/Wall + Posterior Hemitransverse, Both Column
+3. แตะปุ่มกากบาท `✕` ที่มุมขวาบน หรือกดปุ่ม `Esc` เพื่อปิดหน้าต่างแล้วกลับสู่การอ่านภาพทันที
 
 ![Judet & Letournel Classification Modal](./docs/manual_images/06_classification_modal.png)
 
