@@ -1329,7 +1329,7 @@ window.showAdminToast = function(msg) {
 // 7. SEQUENTIAL CASE EXAM TIMER SYSTEM (5 MIN/CASE)
 // ==========================================
 const EXAM_CASE_DURATION_SEC = 300; // 5 minutes
-const EXAM_PASSCODE = '1107';
+const EXAM_PASSCODE = '1314';
 const EXAM_EXIT_PASSCODE = '8888';
 
 window.examState = {
